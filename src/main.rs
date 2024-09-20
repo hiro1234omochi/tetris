@@ -49,7 +49,7 @@ struct TetrisDataContainer{
 fn App() -> Element {
     //let a = use_state(|| 0);
     let mut tetris_manager= use_signal_sync(|| tetris::TetrisManager::default());
-    
+    let mut has_started= use_signal_sync(|| false);
     let _: Coroutine<()>=use_coroutine(|rx| async move {
         let mut previous_tetris_data_container: Option<TetrisDataContainer>=None;
         let mut is_updated=false;
@@ -61,43 +61,53 @@ fn App() -> Element {
             document.getElementById("a").innerHTML=msg
         }"#);*/
         let mut a=0;
-        loop{
+        {//最初の空白の画面を表示したい
             let eval = eval(SCRIPT);
-            tetris_manager.write().update();
-            if tetris_manager.read().get_is_finished(){
-                tetris_manager.set(tetris::TetrisManager::default());
+            eval.send(serde_json::Value::String(serde_json::to_string(&TetrisDataContainer{
+                field: BlockType::create_empty_field(),
+                nexts: vec![vec![vec![BlockType::Empty;4];2];7],
+                hold: None
+            }).unwrap()));
+        }
+        loop{
+            if *has_started.read(){
+                let eval = eval(SCRIPT);
                 tetris_manager.write().update();
-            }
-            let data: (Vec<Vec<BlockType>>, Vec<tetris::MinoType>, Option<tetris::MinoType>)=tetris_manager.read().get_data_to_draw(7);
-            let tetris_data_container=TetrisDataContainer{
-                field: data.0,
-                nexts: data.1.iter().map({|&mino_type|{mino_type.hold_field().iter().map(|row|{row.to_vec()}).collect()}}).collect(),
-                hold: if let Some(hold) = data.2{
-                    Some(hold.hold_field().iter().map(|&row|{row.to_vec()}).collect())
-                }else{
-                    None
+                if tetris_manager.read().get_is_finished(){
+                    tetris_manager.set(tetris::TetrisManager::default());
+                    tetris_manager.write().update();
                 }
-            };
-            /*is_updated=if let Some(previous_tetris_data_container)=previous_tetris_data_container.clone(){
-                previous_tetris_data_container!=tetris_data_container
-            }else{
-                true
-            };
-            if is_updated{
+                let data: (Vec<Vec<BlockType>>, Vec<tetris::MinoType>, Option<tetris::MinoType>)=tetris_manager.read().get_data_to_draw(7);
+                let tetris_data_container=TetrisDataContainer{
+                    field: data.0,
+                    nexts: data.1.iter().map({|&mino_type|{mino_type.hold_field().iter().map(|row|{row.to_vec()}).collect()}}).collect(),
+                    hold: if let Some(hold) = data.2{
+                        Some(hold.hold_field().iter().map(|&row|{row.to_vec()}).collect())
+                    }else{
+                        None
+                    }
+                };
+                /*is_updated=if let Some(previous_tetris_data_container)=previous_tetris_data_container.clone(){
+                    previous_tetris_data_container!=tetris_data_container
+                }else{
+                    true
+                };
+                if is_updated{
+                    eval.send(serde_json::Value::String(serde_json::to_string(&tetris_data_container).unwrap()));               
+                    previous_tetris_data_container=Some(tetris_data_container);
+                }*/
+                
+                previous_tetris_data_container=Some(tetris_data_container.clone());
+                
                 eval.send(serde_json::Value::String(serde_json::to_string(&tetris_data_container).unwrap()));               
-                previous_tetris_data_container=Some(tetris_data_container);
-            }*/
-            
-            previous_tetris_data_container=Some(tetris_data_container.clone());
-            
-            eval.send(serde_json::Value::String(serde_json::to_string(&tetris_data_container).unwrap()));               
-            
-            
-            //eval.send(a.into());
-            /* 
-            async_std::task::sleep(Duration::from_millis(10)).await;
-            async_std::task::yield_now().await;
-            */
+                
+                
+                //eval.send(a.into());
+                /* 
+                async_std::task::sleep(Duration::from_millis(10)).await;
+                async_std::task::yield_now().await;
+                */
+            }
             async_std::task::sleep(*tetris::SLEEP_TIME.lock().unwrap()/*std::time::Duration::from_millis(18)*/).await;
             //info!("starting app");
             //a=1
@@ -107,8 +117,6 @@ fn App() -> Element {
              */
         }
     });
-    let a: (Vec<Vec<BlockType>>, Vec<tetris::MinoType>, Option<tetris::MinoType>)=
-        tetris_manager.read().get_data_to_draw(7);
     let mut handle_key_event = move |evt: KeyboardEvent,is_down: bool|{
         if evt.is_auto_repeating(){
             return;
@@ -140,14 +148,23 @@ fn App() -> Element {
         }*/
         //head::Link{ href: STYLE, rel: "stylesheet"}
         //tetris-field=220px 400px
-        canvas {
-            id: "tetris",
-            tabindex: "-1",
+        div{
             onkeydown: move |evt|{handle_key_event(evt,true)},
             onkeyup: move |evt|{handle_key_event(evt,false)},
-        }
-        div { 
-            id: "a"
+            tabindex: "-1",
+            
+            canvas {
+                id: "tetris",
+            }
+            button { 
+                onclick: move |evt|{*has_started.write() ^= true;},
+                if *has_started.read(){
+                    "PAUSE"
+                }else{
+                    "START"
+                }
+            }
+            
         }
 
     }
