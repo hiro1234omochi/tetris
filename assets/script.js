@@ -1,14 +1,16 @@
 //while(true){
 let msg = JSON.parse(await dioxus.recv());
+
 const canvas=document.getElementById("tetris");
+canvas.height=600;
+canvas.width=600;
 const ctx = canvas.getContext('2d'); 
-const field=msg["field"];
+let field=msg["field"];
 const hold=msg["hold"];
 const nexts=msg["nexts"];
 const limit_view=20;
 const blockSize = 20;
-canvas.height=600;
-canvas.width=600;
+const field_distance=200;//どれくらいfieldを右にずらすか(px)
 const colors = {
     "MinoZ": "red",
     "MinoS": "green",
@@ -22,8 +24,10 @@ const colors = {
 };
 
 debugger
-function draw() {
-    for (let row = field.length-limit_view; row < field.length; row++) {
+
+field=field.slice(field.length-limit_view,field.length);
+function draw_field() {
+    for (let row = 0; row < field.length; row++) {
         for (let col = 0; col < field[row].length; col++) {
             const cell = field[row][col];
             let cell_color=colors[cell];
@@ -37,11 +41,10 @@ function draw() {
                 ctx.fillStyle = cell_color;
             }
             //ctx.fillStyle = cell === "Empty" ? "white" : colors[cell.MinoInMotion || cell.Ghost || cell.MinoBlock];
-            ctx.fillRect(col * blockSize, row * blockSize, blockSize, blockSize);
-            ctx.strokeRect(col * blockSize, row * blockSize, blockSize, blockSize);
+            ctx.fillRect(field_distance+col * blockSize, row * blockSize, blockSize, blockSize);//塗りつぶし
+            ctx.strokeRect(field_distance+col * blockSize, row * blockSize, blockSize, blockSize);//枠線
         }
     }
 }
-
-draw();
+draw_field();
 //*}
