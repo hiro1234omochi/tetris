@@ -11,6 +11,8 @@ const nexts=msg["nexts"];
 const limit_view=20;
 const blockSize = 20;
 const field_distance=200;//どれくらいfieldを右にずらすか(px)
+const nexts_distancce=400//同上
+const next_distance_in_nexts=50 //どれくらいnextsの中でそれぞれ下にずらすか
 const colors = {
     "MinoZ": "red",
     "MinoS": "green",
@@ -66,6 +68,19 @@ function draw_hold(){
         }
     }
 }
+function draw_nexts(){
+    let vertical=0
+    for(let i=0;i<nexts.length;i++){
+        for (let row = 0; row < nexts[i].length; row++) {
+            for (let col = 0; col < nexts[i][row].length; col++) {
+                const cell = nexts[i][row][col];
+                draw_cell(cell,nexts_distancce+col * blockSize,vertical+row * blockSize,blockSize)
+            }
+        }
+        vertical+=next_distance_in_nexts;
+    }
+}
 draw_field();
 draw_hold();
+draw_nexts();
 //*}
