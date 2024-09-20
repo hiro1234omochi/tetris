@@ -30,21 +30,25 @@ function draw_field() {
     for (let row = 0; row < field.length; row++) {
         for (let col = 0; col < field[row].length; col++) {
             const cell = field[row][col];
-            let cell_color=colors[cell];
-            if (cell_color==null){
-                if (cell.Ghost == null){
-                    ctx.fillStyle = colors[cell.MinoInMotion || cell.MinoBlock];
-                }else{
-                    ctx.fillStyle=colors["Ghost"];
-                }
-            }else{
-                ctx.fillStyle = cell_color;
-            }
+
             //ctx.fillStyle = cell === "Empty" ? "white" : colors[cell.MinoInMotion || cell.Ghost || cell.MinoBlock];
-            ctx.fillRect(field_distance+col * blockSize, row * blockSize, blockSize, blockSize);//塗りつぶし
-            ctx.strokeRect(field_distance+col * blockSize, row * blockSize, blockSize, blockSize);//枠線
+            draw_cell(cell,field_distance+col * blockSize,row * blockSize,blockSize)
         }
     }
+}
+function draw_cell(cell_type,x,y,cell_size){
+    let cell_color=colors[cell_type];
+    if (cell_color==null){
+        if (cell_type.Ghost == null){
+            ctx.fillStyle = colors[cell_type.MinoInMotion || cell_type.MinoBlock];
+        }else{
+            ctx.fillStyle=colors["Ghost"];
+        }
+    }else{
+        ctx.fillStyle = cell_color;
+    }
+    ctx.fillRect(x,y,cell_size,cell_size);//塗りつぶし
+    ctx.strokeRect(x,y,cell_size,cell_size);//枠線
 }
 draw_field();
 //*}
