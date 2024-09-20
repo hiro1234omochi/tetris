@@ -50,5 +50,22 @@ function draw_cell(cell_type,x,y,cell_size){
     ctx.fillRect(x,y,cell_size,cell_size);//塗りつぶし
     ctx.strokeRect(x,y,cell_size,cell_size);//枠線
 }
+function draw_hold(){
+    if (hold==null){
+        for (let row = 0; row < 2; row++) {
+            for (let col = 0; col < 4; col++) {
+                draw_cell("Empty",col * blockSize,row * blockSize,blockSize)
+            }
+        }
+    }else{
+        for (let row = 0; row < hold.length; row++) {
+            for (let col = 0; col < hold[row].length; col++) {
+                const cell = hold[row][col];
+                draw_cell(cell,col * blockSize,row * blockSize,blockSize)
+            }
+        }
+    }
+}
 draw_field();
+draw_hold();
 //*}

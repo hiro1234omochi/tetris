@@ -42,8 +42,8 @@ fn main() {
 #[derive(Serialize,Debug,PartialEq,Eq,Clone)]
 struct TetrisDataContainer{
     field: Vec<Vec<BlockType>>,
-    nexts:  Vec<tetris::MinoType>,
-    hold: Option<tetris::MinoType>
+    nexts:  Vec<Vec<Vec<BlockType>>>,
+    hold: Option<Vec<Vec<BlockType>>>,
 }
 #[component]
 fn App() -> Element {
@@ -68,11 +68,15 @@ fn App() -> Element {
                 tetris_manager.set(tetris::TetrisManager::default());
                 tetris_manager.write().update();
             }
-            let data=tetris_manager.read().get_data_to_draw(7);
+            let data: (Vec<Vec<BlockType>>, Vec<tetris::MinoType>, Option<tetris::MinoType>)=tetris_manager.read().get_data_to_draw(7);
             let tetris_data_container=TetrisDataContainer{
                 field: data.0,
-                nexts: data.1,
-                hold: data.2
+                nexts: data.1.iter().map({|&mino_type|{mino_type.hold_field().iter().map(|row|{row.to_vec()}).collect()}}).collect(),
+                hold: if let Some(hold) = data.2{
+                    Some(hold.hold_field().iter().map(|&row|{row.to_vec()}).collect())
+                }else{
+                    None
+                }
             };
             /*is_updated=if let Some(previous_tetris_data_container)=previous_tetris_data_container.clone(){
                 previous_tetris_data_container!=tetris_data_container
