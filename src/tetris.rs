@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
 use std::thread;
 use dioxus::events::keyboard_types::KeyState;
+use serde::Serialize;
 use web_time::{Duration, Instant};
 use once_cell::sync::Lazy;
 use rand::seq::SliceRandom;
@@ -13,7 +14,7 @@ use MinoType::*;
 use crate::human_can;
 
 pub static WIDTH: AtomicUsize = AtomicUsize::new(10);
-pub static HEIGHT: AtomicUsize = AtomicUsize::new(27);
+pub static HEIGHT: AtomicUsize = AtomicUsize::new(26);
 pub static APPEARANCE_POSITION:(AtomicI64,AtomicI64) = (AtomicI64::new(4),AtomicI64::new(5));
 
 //static DCD: i64 = 0;
@@ -353,7 +354,7 @@ pub enum KeyStatePlus{
     DownProcessed,
     Up,
 }
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Serialize,Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub enum MinoType {
     MinoI,
     MinoO,
@@ -913,7 +914,7 @@ pub enum MinoState {
     InMotion,
     Fixed,
 }
-#[derive(Eq, PartialEq, Hash, Clone, Copy, Debug)]
+#[derive(Serialize,Eq, PartialEq, Hash, Clone, Copy, Debug)]
 pub enum BlockType {
     Empty,
     Wall,
