@@ -602,7 +602,7 @@ impl TetrisManager {
                     self.tetris_variable_container.last_soft_drop_execute = Some(now_instant);
                 }
                 //if self.tetris_variable_container.last_check_das_executed.is_none() || now_instant - self.tetris_variable_container.last_soft_drop_execute.unwrap() > *check_das_distance {
-                if (self.tetris_variable_container.start_left_pressing.is_some() && self.tetris_variable_container.start_right_pressing.is_some()) || (self.tetris_variable_container.start_left_pressing.is_none() && self.tetris_variable_container.start_right_pressing.is_none()) {
+                if (self.tetris_variable_container.start_left_pressing.is_some() && self.tetris_variable_container.start_right_pressing.is_some()) || (self.tetris_variable_container.start_left_pressing.is_none() && self.tetris_variable_container.start_right_pressing.is_none()) || (self.tetris_variable_container.arr_direction_is_right.is_some() && (self.tetris_variable_container.arr_direction_is_right != Some(self.tetris_variable_container.start_right_pressing.is_some())) ) {
                     self.tetris_variable_container.start_waiting_das = None;
                     self.tetris_variable_container.arr_direction_is_right = None;
                 } else {
