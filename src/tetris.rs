@@ -589,17 +589,17 @@ impl TetrisManager {
             }
             { //判定系
                 if self.tetris_variable_container.is_in_soft_drop {
+                    let previous_minimum_y = self.tetris_variable_container.mino.minimum_y;
                     if soft_drop_distance.is_zero() { //infinityつまり即時着地
                         while self.tetris_variable_container.mino.move_order(MoveMessage::Down).is_ok() {}
                     } else if self.tetris_variable_container.last_soft_drop_execute.is_none() || now_instant - self.tetris_variable_container.last_soft_drop_execute.unwrap() > *soft_drop_distance {
-                        let previous_minimum_y = self.tetris_variable_container.mino.minimum_y;
                         let _ = self.tetris_variable_container.mino.move_order(MoveMessage::Down);
-                        if previous_minimum_y < self.tetris_variable_container.mino.minimum_y { //minimum_yの値が大きくなったということは最低点を更新したってこと
-                            self.tetris_variable_container.move_count_since_lockdown_execute = 0;
-                            self.tetris_variable_container.first_hitting_ground = None;
-                        }
-                        self.tetris_variable_container.last_soft_drop_execute = Some(now_instant);
                     }
+                    if previous_minimum_y < self.tetris_variable_container.mino.minimum_y { //minimum_yの値が大きくなったということは最低点を更新したってこと
+                        self.tetris_variable_container.move_count_since_lockdown_execute = 0;
+                        self.tetris_variable_container.first_hitting_ground = None;
+                    }
+                    self.tetris_variable_container.last_soft_drop_execute = Some(now_instant);
                 }
                 //if self.tetris_variable_container.last_check_das_executed.is_none() || now_instant - self.tetris_variable_container.last_soft_drop_execute.unwrap() > *check_das_distance {
                 if (self.tetris_variable_container.start_left_pressing.is_some() && self.tetris_variable_container.start_right_pressing.is_some()) || (self.tetris_variable_container.start_left_pressing.is_none() && self.tetris_variable_container.start_right_pressing.is_none()) {
@@ -639,10 +639,14 @@ impl TetrisManager {
                     //self.tetris_variable_container.last_check_if_hitting_ground = Some(now_instant);
                 //}
                 if self.tetris_variable_container.first_hitting_ground.is_some() && now_instant - self.tetris_variable_container.first_hitting_ground.unwrap() > *lockdown_distance { //最初に地面に接触してから一定の時間が経ったら
-                    if self.tetris_variable_container.last_move_execute.is_none() || now_instant - self.tetris_variable_container.last_move_execute.unwrap() > *lockdown_distance || self.tetris_variable_container.move_count_since_lockdown_execute >= MOVE_COUNT_LIMIT.load(Ordering::Relaxed) { //最後に動かされてから一定時間が経過しているか、一定回数以上動いたら
+                    if self.tetris_variable_container.last_move_execute.is_none() || now_instant - self.tetris_variable_container.last_move_execute.unwrap() > *lockdown_distance { //最後に動かされてから一定時間が経過しているか、一定回数以上動いたら
                         self.tetris_variable_container.mino.fix();
                         self.tetris_variable_container.next = self.random_generator.lock().unwrap().next(); //次のミノにうつる
                     } 
+                }
+                if  self.tetris_variable_container.move_count_since_lockdown_execute >= MOVE_COUNT_LIMIT.load(Ordering::Relaxed) && self.tetris_variable_container.first_hitting_ground.is_some(){
+                    self.tetris_variable_container.mino.fix();
+                    self.tetris_variable_container.next = self.random_generator.lock().unwrap().next(); //次のミノにうつる
                 }
                 if(*self.field.lock().unwrap()!=previous_field){
                     self.tetris_variable_container.mino.draw_ghost();
