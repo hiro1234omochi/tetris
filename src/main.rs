@@ -61,7 +61,7 @@ fn App() -> Element {
             document.getElementById("a").innerHTML=msg
         }"#);*/
         let mut a=0;
-        {//最初の空白の画面を表示したい
+        {
             let eval = eval(SCRIPT);
             eval.send(serde_json::Value::String(serde_json::to_string(&TetrisDataContainer{
                 field: BlockType::create_empty_field(),
@@ -137,6 +137,40 @@ fn App() -> Element {
         };
     };
     let datas: (Vec<Vec<BlockType>>, Vec<tetris::MinoType>, Option<tetris::MinoType>)=tetris_manager.read().get_data_to_draw(7);
+    let sc=
+    r##"
+            document.addEventListener("keydown",function(event){
+                if (event.isTrusted) {
+                    event.preventDefault();
+                    const KEvent = new KeyboardEvent("keydown", {
+                        key: event.key,
+                        code: event.code,
+                        keyCode: event.keyCode,
+                        charCode: event.charCode,
+                        bubbles: event.bubbles,
+                        repeat: event.repeat,
+                        cancelable: true
+                    });
+                    document.getElementById("tetris_container").dispatchEvent( KEvent );
+                }
+            });
+            document.addEventListener("keyup",function(event){
+                if (event.isTrusted) {
+                    event.preventDefault();
+                    const KEvent = new KeyboardEvent("keyup", {
+                        key: event.key,
+                        code: event.code,
+                        keyCode: event.keyCode,
+                        charCode: event.charCode,
+                        bubbles: event.bubbles,
+                        repeat: event.repeat,
+                        cancelable: true
+                    });
+                    document.getElementById("tetris_container").dispatchEvent( KEvent );
+
+                }                   
+            });
+    "##;
     rsx! {
         link{
             rel: "stylesheet",
@@ -148,11 +182,15 @@ fn App() -> Element {
         }*/
         //head::Link{ href: STYLE, rel: "stylesheet"}
         //tetris-field=220px 400px
+    
+        script {
+            "{sc}"
+        }
+
         div{
             onkeydown: move |evt|{handle_key_event(evt,true)},
             onkeyup: move |evt|{handle_key_event(evt,false)},
-            tabindex: "-1",
-            
+            id: "tetris_container",
             canvas {
                 id: "tetris",
             }
