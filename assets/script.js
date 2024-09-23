@@ -9,6 +9,7 @@ let field = msg["field"];
 const hold = msg["hold"];
 const nexts = msg["nexts"];
 const limit_view = 20;
+const additional_view = 4;
 const blockSize = 20;
 const field_distance = 200; //どれくらいfieldを右にずらすか(px)
 const nexts_distancce = 400; //同上
@@ -27,19 +28,29 @@ const colors = {
 
 debugger;
 
-field = field.slice(field.length - limit_view, field.length);
+field = field.slice(field.length - limit_view - additional_view, field.length);
 function draw_field() {
     for (let row = 0; row < field.length; row++) {
         for (let col = 0; col < field[row].length; col++) {
             const cell = field[row][col];
 
             //ctx.fillStyle = cell === "Empty" ? "white" : colors[cell.MinoInMotion || cell.Ghost || cell.MinoBlock];
-            draw_cell(
-                cell,
-                field_distance + col * blockSize,
-                row * blockSize,
-                blockSize
-            );
+            let should_draw = false;
+            if (row < additional_view) {
+                if (cell != "Empty") {
+                    should_draw = true;
+                }
+            } else {
+                should_draw = true;
+            }
+            if (should_draw) {
+                draw_cell(
+                    cell,
+                    field_distance + col * blockSize,
+                    row * blockSize,
+                    blockSize
+                );
+            }
         }
     }
 }

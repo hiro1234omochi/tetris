@@ -15,7 +15,7 @@ use MinoType::*;
 
 pub static WIDTH: AtomicUsize = AtomicUsize::new(10);
 pub static HEIGHT: AtomicUsize = AtomicUsize::new(26);
-pub static APPEARANCE_POSITION: (AtomicI64, AtomicI64) = (AtomicI64::new(3), AtomicI64::new(5));
+pub static APPEARANCE_POSITION: (AtomicI64, AtomicI64) = (AtomicI64::new(3), AtomicI64::new(3));
 
 //static DCD: i64 = 0;
 pub static ARR: Lazy<Arc<Mutex<Duration>>> =
